@@ -4,11 +4,18 @@ function Todolist() {
     const [inputTodos, setInputTodos] = useState("");
     const [todos, setTodos] = useState([]);
 
+
     const addTodos = () => {
         if (inputTodos.trim() === "") return;
 
         setTodos([...todos, inputTodos]);
         setInputTodos("");
+    };
+
+    const deleteTodo = (index) => {
+        const newTodos = todos.filter((_, i) => i !== index);
+        setTodos(newTodos);
+
     };
 
     console.log(todos);
@@ -22,12 +29,16 @@ function Todolist() {
 
             <ul>
                 {todos.map((item, index) => (
-                    <li key={index}>{item}</li>
+                    <li key={index}>
+                        {item}
+
+                        <button onClick={() => deleteTodo(index)}>Hapus</button>
+                    </li>
                     // <button onClick="{() => deleteTodo(index)}">Delete</button>;
                 ))}
             </ul>
         </>
-    )
+    );
 }
 
 export default Todolist;
