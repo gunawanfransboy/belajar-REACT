@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 
-import axios from "axios";
+import api from "../utils/api";
 import Swal from "sweetalert2";
 import AuthCard from "../components/AuthCard";
 
@@ -14,11 +14,13 @@ const RegisterPage = () => {
         name: "",
         email: "",
         password: "",
-        password_confirmation: ""
+        password_confirmation: "",
+        role_id: ""
 
     });
 
     const [errors, setErrors] = useState([]);
+    const [roles, setRoles] = useState([]);
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -30,7 +32,7 @@ const RegisterPage = () => {
         setErrors([]);
 
         try {
-            const res = await axios.post('http://localhost:8000/api/register', formData);
+            const res = await api.post('/register', formData);
             const successMsg = res.data.message;
             Swal.fire({
                 icon: "success",
@@ -55,6 +57,18 @@ const RegisterPage = () => {
             }
         }
     };
+
+    useEffect(() => {
+        const fetchRoles = async () => {
+            try {
+                const res = await api.get('/roles');
+                setRoles(res.data.data || []);
+            } catch (error) {
+                console.error('Failed to fetch roles:', error);
+            }
+        };
+        fetchRoles();
+    }, []);
 
 
     return (
@@ -99,6 +113,25 @@ const RegisterPage = () => {
                         placeholder="Enter your password confirmation">
                     </Form.Control>
                     <Form.Control.Feedback type="invalid">{errors.password_confirmation?.[0]}</Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label className="form-label">Role</Form.Label>
+                    <Form.Select
+                        name="role_id"
+                        value={formData.role_id}
+                        onChange={handleChange}
+                        isInvalid={!!errors?.role_id}
+                    >
+                        <option value="">Select Role</option>
+                        {roles.map((role) => (
+                            <option key={role.id} value={role.id}>
+                                {role.name}
+                            </option>
+                        ))}
+                    </Form.Select>
+                    <Form.Control.Feedback type="invalid">
+                        {errors.role_id?.[0]}
+                    </Form.Control.Feedback>
                 </Form.Group>
                 <Button variant="primary" className="w-100" type="submit">Save</Button>
             </Form>
